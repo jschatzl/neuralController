@@ -1,0 +1,67 @@
+\begin{tikzpicture}[
+    >=Stealth,
+    line width=0.55pt,
+    neuron/.style={
+        circle,
+        draw,
+        minimum size=1.05cm,
+        inner sep=0pt
+    },
+    layer label/.style={font=\bfseries\large},
+    forward/.style={->},
+    backward/.style={->, red!75!black, dashed, line width=0.7pt}
+]
+
+% Layer labels
+\node[layer label] at (0, 3.2) {layer 1};
+\node[layer label] at (3.4, 3.2) {layer 2};
+\node[layer label] at (6.8, 3.2) {layer 3};
+
+% Layer 1
+\node[neuron] (x1) at (0, 2.0) {$a^1_1$};
+\node[neuron] (x2) at (0, 0.5) {$a^1_2$};
+\node[neuron] (x3) at (0,-1.0) {$a^1_3$};
+
+% Layer 2
+\node[neuron] (h1) at (3.4, 2.3) {$a^2_1$};
+\node[neuron] (h2) at (3.4, 0.8) {$a^2_2$};
+\node[neuron] (h3) at (3.4,-0.7) {$a^2_3$};
+\node[neuron] (h4) at (3.4,-2.2) {$a^2_4$};
+
+% Layer 3 / output
+\node[neuron] (y1) at (6.8, 1.6) {$a^3_1$};
+\node[neuron] (y2) at (6.8,-0.3) {$a^3_2$};
+
+% Forward connections
+\foreach \source in {x1,x2,x3} {
+    \foreach \target in {h1,h2,h3,h4} {
+        \draw[forward] (\source) -- (\target);
+    }
+}
+
+\foreach \source in {h1,h2,h3,h4} {
+    \foreach \target in {y1,y2} {
+        \draw[forward] (\source) -- (\target);
+    }
+}
+
+% Cost function
+\node[align=left] (cost) at (10.2,0.65) {$\displaystyle C=C(a^3)$};
+\draw[forward] (y1) -- (cost.west |- y1);
+\draw[forward] (y2) -- (cost.west |- y2);
+
+% Backpropagation arrows: representative error flow
+\draw[backward] (cost.west |- y1) -- (y1.east)
+    node[midway, above, sloped] {$\partial C/\partial a^3$};
+\draw[backward] (y1.west) -- (h2.east)
+    node[midway, above, sloped] {$\delta^3 \rightarrow \delta^2$};
+\draw[backward] (y2.west) -- (h3.east);
+\draw[backward] (h2.west) -- (x2.east)
+    node[midway, above, sloped] {$\delta^2 \rightarrow \delta^1$};
+\draw[backward] (h3.west) -- (x3.east);
+
+% Explanatory labels
+\node[align=center, red!75!black] at (9.6, 3.21)
+    {error propagation\\from output to input};
+
+\end{tikzpicture}

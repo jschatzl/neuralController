@@ -1,0 +1,41 @@
+\begin{tikzpicture}[
+    >=Stealth,
+    line width=0.6pt,
+    neuron/.style={
+        circle,
+        draw,
+        minimum size=1.7cm,
+        inner sep=0pt
+    }
+]
+
+% Neuron body
+\node[neuron] (neuron) at (0,0) {};
+
+% Vertical separation inside the neuron
+\draw ($(neuron.center) + (0,-0.85)$) -- ($(neuron.center) + (0,0.85)$);
+
+% Labels inside the neuron
+\node at ($(neuron.center) + (-0.38,0)$) {$z$};
+\node at ($(neuron.center) + (0.38,0)$) {$\sigma$($z$)};
+
+% Input labels
+\node[left] (x1) at (-3, 1.15) {$x_1$};
+\node[left] (x2) at (-3, 0.00) {$x_2$};
+\node[left] (x3) at (-3,-1.15) {$x_3$};
+
+% Weighted input connections
+\draw[->] (x1.east) -- (neuron.150)
+    node[pos=0.55, above] {$w_1$};
+
+\draw[->] (x2.east) -- (neuron.180)
+    node[pos=0.55, above] {$w_2$};
+
+\draw[->] (x3.east) -- (neuron.210)
+    node[pos=0.55, below] {$w_3$};
+
+% Output connection
+\draw[->] (neuron.east) -- (3,0)
+    node[pos=0.55, above] {$y$};
+
+\end{tikzpicture}

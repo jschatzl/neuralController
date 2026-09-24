@@ -5,13 +5,13 @@
             "name": "Debug with GDB",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main", // Path to your executable
+            "program": "${workspaceFolder}/build/test", // Path to your executable
             "args": [
                 "2",
                 "3",
                 "0.01",
-                "5000",
-                "3",
+                "6000",
+                "8",
                 "1",
                 "1.0",
                 "test.csv",
