@@ -22,6 +22,13 @@
                 "isDefault": true
             },
             "detail": "Vom Debugger generierte Aufgabe."
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: test",
+            "command": "test",
+            "problemMatcher": [],
+            "detail": "CMake template test task"
         }
     ],
     "version": "2.0.0"

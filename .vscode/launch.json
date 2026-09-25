@@ -2,20 +2,51 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug with MSVC",
-            "type": "cppvsdbg",
+            "name": "Debug with GDB",
+            "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main.exe",
-            "args": [],
+            "program": "${workspaceFolder}/build/test", // Path to your executable
+            "args": [
+                "2",
+                "3",
+                "0.01",
+                "6000",
+                "8",
+                "1",
+                "1.0",
+                "test.csv",
+                "1",
+                "1"
+            ], // Replace with your arguments
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
             "environment": [],
             "externalConsole": false,
-            "logging": {
-                "moduleLoad": false,
-                "trace": false
-            }
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb", // Path to your gdb
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/main.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": true
+        },
+        {
+            "name": "Python C++ Debugger",
+            "type": "pythoncpp",
+            "request": "launch",
+            "pythonConfig": "custom",
+            "pythonLaunchName": "Python: Current File",
+            "cppConfig": "default (gdb) Attach"
         }
     ]
 }

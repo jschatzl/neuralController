@@ -1,11 +1,28 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "cmake.configureOnOpen": true,
+    "cmake.debugConfig": {
+        "args": [
+            "2",
+            "3",
+            "0.01",
+            "6000",
+            "8",
+            "1",
+            "1.0",
+            "test.csv",
+            "2",
+            "1"
+        ]
+    },
     "files.associations": {
         "nchelper.h": "c",
         "supportlib.h": "c",
         "type_traits": "c",
         "xtr1common": "c",
-        "neuralcontroller.h": "c"
+        "neuralcontroller.h": "c",
+        "initializer_list": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

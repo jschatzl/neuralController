@@ -1,65 +1,50 @@
-cmake_minimum_required(VERSION 3.18.4)
+cmake_minimum_required(VERSION 3.22)
 
 project(Neural_Network)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/inc
-    ${CMAKE_SOURCE_DIR}/src
+# generated library goes into the scripts folder
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/scripts")
+set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+# create STATIC library for every other target
+add_library(neuralController STATIC)
+target_sources(neuralController PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/neuralController.c
+)
+target_include_directories(neuralController PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
-file(
-    GLOB main_srcs
-    "${PROJECT_SOURCE_DIR}/src/neuralController.c"
-    "${PROJECT_SOURCE_DIR}/inc/neuralController.h"
-    "${PROJECT_SOURCE_DIR}/src/main.c"
-)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "([xX]86|AMD64|amd64)")
+    # create target library for python
+    add_library(neuralControllerInterface SHARED)
+    target_sources(neuralControllerInterface PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/neuralController.c
+    )
+    target_include_directories(neuralControllerInterface PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    )
+    target_link_libraries(neuralControllerInterface PUBLIC 
+        m
+    )
+    set_target_properties(neuralControllerInterface PROPERTIES PREFIX "")
+endif()
 
-file(
-    GLOB test3_srcs
-    "${PROJECT_SOURCE_DIR}/src/neuralController.c"
-    "${PROJECT_SOURCE_DIR}/inc/neuralController.h"
-    "${PROJECT_SOURCE_DIR}/src/ncHelper.h"
-    "${PROJECT_SOURCE_DIR}/src/ncHelper.c"
-    "${PROJECT_SOURCE_DIR}/misc/test3.c"
-)
+if(DEFINED TEST)
+    # add target test
+    add_executable(test)
+    target_sources(test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+    )
+    target_include_directories(test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    )
+    target_link_libraries(test PRIVATE 
+        neuralController 
+        m
+    )
+endif()
 
-add_library(
-    pbPlots
-    "${PROJECT_SOURCE_DIR}/lib/pbPlots/pbPlots.c"
-    "${PROJECT_SOURCE_DIR}/lib/pbPlots/pbPlots.h"
-    "${PROJECT_SOURCE_DIR}/lib/pbPlots/supportLib.c"
-    "${PROJECT_SOURCE_DIR}/lib/pbPlots/supportLib.c"
-)
-
-add_library(
-    minIni
-    "${PROJECT_SOURCE_DIR}/lib/minIni/minIni.c"
-    "${PROJECT_SOURCE_DIR}/lib/minIni/minIni.h"
-)
-
-add_library(
-    pthread
-    "${PROJECT_SOURCE_DIR}/lib/pthreads/include/_ptw32.h"
-    "${PROJECT_SOURCE_DIR}/lib/pthreads/include/pthread.h"
-    "${PROJECT_SOURCE_DIR}/lib/pthreads/include/sched.h"
-    "${PROJECT_SOURCE_DIR}/lib/pthreads/include/semaphore.h"
-)
-
-target_include_directories(
-    pbPlots PUBLIC 
-    "${PROJECT_SOURCE_DIR}/lib/pbPlots"
-    cJSON PUBLIC
-    "${PROJECT_SOURCE_DIR}/lib/cJSON"
-    minIni PUBLIC
-    "${PROJECT_SOURCE_DIR}/lib/minIni")
-
-target_link_libraries(pthread -lpthread -LC:/src/vcpkg/vcpkg/installed/x64-windows/lib)
-set_target_properties(pthread PROPERTIES LINKER_LANGUAGE C)
-
-
-add_executable(main ${main_srcs})
-add_executable(test3 ${test3_srcs})
-
-target_link_libraries(main PRIVATE pbPlots minIni pthread)
-target_link_libraries(test3 PRIVATE pbPlots minIni pthread)
 
