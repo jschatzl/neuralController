@@ -138,12 +138,12 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
     assert(n == ncConfig->arch.total_neurons);
     n = 0;
 
-    d2 = control->input[ncConfig->inputs - 1] - control->input_old[ncConfig->inputs - 1];
-    memcpy(control->input_old, &control->input, ncConfig->inputs);
+    // d2 = control->input[ncConfig->inputs - 1] - control->input_old[ncConfig->inputs - 1];
+    // memcpy(control->input_old, &control->input, ncConfig->inputs);
 
-    control->act_new = ncConfig->setpoint - control->input[1];
-    control->rating = (fabs(control->act_new) - fabs(control->act_old)) + control->act_new;
-    control->act_old = control->act_new;
+    // control->act_new = ncConfig->setpoint - control->input[1];
+    // control->rating = (fabs(control->act_new) - fabs(control->act_old)) + control->act_new;
+    // control->act_old = control->act_new;
     /*Backpropagation*/
     /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
     /**
