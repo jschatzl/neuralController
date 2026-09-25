@@ -158,7 +158,8 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
             therefore the program branches here
              */
             if (layer == ncConfig->hidden_layers) {
-                double sigma = control->rating * dTanh(neuron[layer][neuronC].netinput);
+                double sigma = (ncConfig->setpoint - neuron[ncConfig->hidden_layers][0].netoutput) * dTanh(neuron[layer][neuronC].netinput);
+                // double sigma = control->rating * dTanh(neuron[layer][neuronC].netinput);
                 for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
                     weight[layer][k][neuronC] += ncConfig->learning_rate * sigma * neuron[layer - 1][k].netoutput;
                     w++;
@@ -191,6 +192,9 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
     n = 0;
     control->epoch++;
 
+    if((control->epoch % 1000) == 0){
+        printf("Setpoint: %f, Learning rate: %f, Error: %f \n", ncConfig->setpoint, ncConfig->learning_rate, control->act_new);
+    }
     *pOutput = neuron[ncConfig->hidden_layers][0].netoutput;
     return 3;
 }

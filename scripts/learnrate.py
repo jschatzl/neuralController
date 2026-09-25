@@ -41,7 +41,8 @@ def step_decay_lr(
         raise ValueError("gamma must be in the interval (0, 1]")
 
     decay_steps = epoch // step_size
-    return initial_lr * gamma**decay_steps
+    lr = initial_lr * gamma**decay_steps
+    return lr
 
 
 def linear_decay_lr(

@@ -2,7 +2,7 @@ import ctypes
 import random
 import numpy as np
 
-lib = ctypes.CDLL("./scripts/neuralControllerInterface.so") 
+lib = ctypes.CDLL("./scripts/neuralControllerInterface.dll") 
 
 class arch_st(ctypes.Structure):
     _fields_ = [
@@ -86,7 +86,7 @@ class NeuralController:
             inputs = 2,
             max_epochs = max_epochs,
             initialized = 0,
-            learning_rate = learning_rate,
+            #learning_rate = learning_rate,
             setpoint = setpoint,
             isJordan = isJordan,
             arch = arch_st(),
@@ -111,9 +111,10 @@ class NeuralController:
         self.yn = (ctypes.c_double)()
         self.output = (ctypes.c_double)()
 
-    def run(self, input: float, learning_rate: float) -> float:
+    def run(self, input: float, learning_rate: float, setpoint: float) -> float:
         self.control.input[0] = ctypes.c_double(input)
         self.ncConfig.learning_rate = learning_rate
+        self.ncConfig.setpoint = setpoint
         lib.neuralController_Run(ctypes.byref(self.ncConfig), ctypes.byref(self.control), ctypes.byref(self.output), self.control.input, self.weights, self.neurons)
         return self.output.value
 
