@@ -5,7 +5,7 @@
             "name": "Debug with GDB",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/test", // Path to your executable
+            "program": "${workspaceFolder}/build/test/test", // Path to your executable
             "args": [
                 "2",
                 "3",

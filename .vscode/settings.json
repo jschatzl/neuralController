@@ -1,6 +1,8 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cmake.configureOnOpen": true,
+    "cmake.useCMakePresets": "always",
     "cmake.debugConfig": {
         "args": [
             "2",
@@ -10,8 +12,6 @@
             "8",
             "1",
             "1.0",
-            "test.csv",
-            "2",
             "1"
         ]
     },

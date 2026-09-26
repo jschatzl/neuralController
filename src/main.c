@@ -40,7 +40,7 @@ int main(int argc, const char* argv[]) {
     ncConfig.neurons = (int)strtol(argv[5], &end, 10);
     ncConfig.output_layer_neurons = (int)strtol(argv[6], &end, 10);
     ncConfig.setpoint = (float)roundf(strtof(argv[7], &end) * 100) / 100;
-    long int temp = strtol(argv[10], &end, 10);
+    long int temp = strtol(argv[8], &end, 10);
     ncConfig.isJordan = (_Bool)temp;
 
     printf("Jordan Network: %d\n", ncConfig.isJordan);
@@ -55,16 +55,6 @@ int main(int argc, const char* argv[]) {
     // array for all error values over n epochs
     float* error_array = (float*)calloc(ncConfig.max_epochs, sizeof(float));
     int* x_values = (int*)calloc(ncConfig.max_epochs, sizeof(int));
-
-    // variables for write to file
-    char filename[100];
-    strncpy(filename, argv[8], sizeof(filename) - 1);
-    filename[sizeof(filename) - 1] = '\0';  // Ensure null-termination
-    int column = (int)strtol(argv[9], &end, 10);
-    if (column <= 0) {
-        fprintf(stderr, "Invalid column value: %d\n", column);
-        return 1;
-    }
 
     // set seed for rand() function
     srand(time(NULL));
@@ -92,6 +82,9 @@ int main(int argc, const char* argv[]) {
         // debug print message
         if ((i % 100) == 0) {
             printf("Epoch: %d Plant output: %f Error: %f u: %f \n", i, yn, ncConfig.setpoint - yn, output);
+        }
+        if(i == (ncConfig.max_epochs/2)){
+            ncConfig.setpoint = ncConfig.setpoint/2;
         }
     }
 

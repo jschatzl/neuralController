@@ -13,13 +13,14 @@
 int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *control, float (*fctPtr)(), double**** pWeight, neuron_st*** pNeuron) {
     control->act_new = 0;
     control->act_old = ncConfig->setpoint - 0;
+    if(ncConfig->isJordan){
+        ncConfig->inputs += ncConfig->output_layer_neurons;
+    }
     control->input = (double*)calloc(ncConfig->inputs, sizeof(double));
     control->input_old = (double*)calloc(ncConfig->inputs, sizeof(double));
     control->rating = 0;
 
-    if(ncConfig->isJordan){
-        ncConfig->inputs += ncConfig->output_layer_neurons;
-    }
+
 
     // double *error_array = calloc(ncConfig->max_epochs, sizeof(double));
     ncConfig->arch.total_neurons = ncConfig->neurons * ncConfig->hidden_layers + ncConfig->output_layer_neurons;
@@ -102,23 +103,25 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
 int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *control, double* pOutput, double* pInput, double*** weight, neuron_st** neuron) {
     int n = 0;
     int w = 0;
-    float d2 = 0;
 
     control->input[0] = ncConfig->setpoint - pInput[0];
-    for (int input_cnt = 0; input_cnt < ncConfig->inputs - 1; input_cnt++) {
-        control->input[input_cnt + 1] = pInput[input_cnt];
-    }
+    control->input[1] = pInput[0];
 
     /* Loop back output as input for Jordan network type */
     if(ncConfig->isJordan){
-        control->input[ncConfig->inputs-1] = *pOutput;
+        control->input[2] = *pOutput;
     }
+
+    // for(int i = 0; i < 3; i++){
+    //     printf("%f \n", control->input[i]);
+    // }
+
     /*Forward pass*/
     for (int layer = 0; layer < ncConfig->layers - 1; layer++) {
         for (int j = 0; j < ncConfig->arch.topology[layer + 1]; j++) {
             /*First hidden layer*/
-            // double sum = neuron[layer][j].bias;
-            double sum = 0;
+            double sum = neuron[layer][j].bias;
+            //double sum = 0;
             for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
                 if (layer == 0)
                     sum += control->input[k] * weight[layer][k][j];
@@ -138,12 +141,6 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
     assert(n == ncConfig->arch.total_neurons);
     n = 0;
 
-    // d2 = control->input[ncConfig->inputs - 1] - control->input_old[ncConfig->inputs - 1];
-    // memcpy(control->input_old, &control->input, ncConfig->inputs);
-
-    // control->act_new = ncConfig->setpoint - control->input[1];
-    // control->rating = (fabs(control->act_new) - fabs(control->act_old)) + control->act_new;
-    // control->act_old = control->act_new;
     /*Backpropagation*/
     /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
     /**
@@ -158,13 +155,8 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
             therefore the program branches here
              */
             if (layer == ncConfig->hidden_layers) {
-                double sigma = (ncConfig->setpoint - neuron[ncConfig->hidden_layers][0].netoutput) * dTanh(neuron[layer][neuronC].netinput);
+                double sigma = (ncConfig->setpoint - pInput[0]) * dTanh(neuron[layer][neuronC].netinput);
                 // double sigma = control->rating * dTanh(neuron[layer][neuronC].netinput);
-                for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
-                    weight[layer][k][neuronC] += ncConfig->learning_rate * sigma * neuron[layer - 1][k].netoutput;
-                    w++;
-                }
-                neuron[layer][neuronC].bias += ncConfig->learning_rate * sigma;
                 neuron[layer][neuronC].sigma = sigma;
                 n++;
             } else {
@@ -173,15 +165,34 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
                     errorSum += neuron[layer + 1][k].sigma * weight[layer + 1][neuronC][k];
                 }
                 double sigma = errorSum * dTanh(neuron[layer][neuronC].netinput);
+                neuron[layer][neuronC].sigma = sigma;
+                n++;
+            }
+        }
+    }
+    assert(n == ncConfig->arch.total_neurons);
+    n = 0;
+    for (int layer = ncConfig->hidden_layers; layer >= 0; layer--) {
+        for (int neuronC = 0; neuronC < ncConfig->arch.topology[layer + 1]; neuronC++) {
+            /*Output layer uses the rating to determine the error signal,
+            therefore the program branches here
+             */
+            if (layer == ncConfig->hidden_layers) {
                 for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
-                    if (layer > 0)
-                        weight[layer][k][neuronC] += ncConfig->learning_rate * sigma * neuron[layer - 1][k].netoutput;
-                    else
-                        weight[layer][k][neuronC] += ncConfig->learning_rate * sigma * control->input[k];
+                    weight[layer][k][neuronC] += ncConfig->learning_rate * neuron[layer][neuronC].sigma * neuron[layer - 1][k].netoutput;
                     w++;
                 }
-                neuron[layer][neuronC].bias += ncConfig->learning_rate * sigma;
-                neuron[layer][neuronC].sigma = sigma;
+                neuron[layer][neuronC].bias += ncConfig->learning_rate * neuron[layer][neuronC].sigma;
+                n++;
+            } else {
+                for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
+                    if (layer > 0)
+                        weight[layer][k][neuronC] += ncConfig->learning_rate * neuron[layer][neuronC].sigma * neuron[layer - 1][k].netoutput;
+                    else
+                        weight[layer][k][neuronC] += ncConfig->learning_rate * neuron[layer][neuronC].sigma * control->input[k];
+                    w++;
+                }
+                neuron[layer][neuronC].bias += ncConfig->learning_rate * neuron[layer][neuronC].sigma;
                 n++;
             }
         }
@@ -192,10 +203,10 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
     n = 0;
     control->epoch++;
 
-    if((control->epoch % 1000) == 0){
-        printf("Setpoint: %f, Learning rate: %f, Error: %f \n", ncConfig->setpoint, ncConfig->learning_rate, control->act_new);
-    }
     *pOutput = neuron[ncConfig->hidden_layers][0].netoutput;
+    // if((control->epoch % 1000) == 0){
+    //     printf("Setpoint: %f, Learning rate: %f, Plant output: %f, u: %f,  Error: %f \n", ncConfig->setpoint, ncConfig->learning_rate, pInput[1], *pOutput, ncConfig->setpoint - pInput[0]);
+    // }
     return 3;
 }
 

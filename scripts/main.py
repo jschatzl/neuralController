@@ -11,20 +11,21 @@ def testParameters(hidden_layers: int, neurons: int, max_epochs: int, learning_r
     t = np.arange(0.0, max_epochs * dt, dt) # array for time
     y = np.zeros_like(t)
     u = np.zeros_like(t)
-    pt2 = PT2(K=1.0, T=1.0, D=0.3, dt=dt)
+    i_p = I(K=1.0, T=0.1)
+    # pt2 = PT2(K=1.0, T=1.0, D=0.3, dt=dt)
     setpoint_rel = setpoint
 
     # A class is needed to run the neural controller module as the python refcount garbage collector
     # looses the c pointer and therefore just frees the memory.
     neuralController = NeuralController(hidden_layers, neurons, max_epochs, learning_rate, setpoint, isJordan)
     for i in range(neuralController.ncConfig.max_epochs-1):
-        learning_rate_rel = lr.step_decay_lr(i, learning_rate, 1000, 0.5)
+        # learning_rate_rel = lr.step_decay_lr(i, learning_rate, 1000, 0.5)
         # learning_rate_rel = lr.linear_decay_lr(i, learning_rate, 0.0001, max_epochs)
-        # learning_rate_rel = learning_rate
+        learning_rate_rel = learning_rate
         u[i+1] = neuralController.run(y[i], learning_rate_rel, setpoint_rel)
-        y[i+1] = pt2.step(u[i+1])
-        #if (i%1000) == 0:
-            #print(f"Epoch: {i} Plant output: {y[i]} u: {u[i]} Error: {neuralController.ncConfig.setpoint - y[i]} Learning Rate: {learning_rate_rel}")
+        y[i+1] = i_p.step(u[i+1])
+        if (i%1000) == 0:
+            print(f"Epoch: {i} Plant output: {y[i]} u: {u[i]} Error: {neuralController.ncConfig.setpoint - y[i]} Learning Rate: {learning_rate_rel}")
         if ((i%(max_epochs/2)) == 0) and (i > 0):
             setpoint_rel = 0.5
 
@@ -54,7 +55,7 @@ def main():
             data = testParameters(
                 3,
                 p2,
-                20000,
+                6000,
                 0.01,
                 1.0,
                 True

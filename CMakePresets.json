@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "normal",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/normal"
+    },
+    {
+      "name": "test",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/test",
+      "cacheVariables": {
+        "TEST": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "normal",
+      "configurePreset": "normal"
+    },
+    {
+      "name": "test",
+      "configurePreset": "test"
+    }
+  ]
+}

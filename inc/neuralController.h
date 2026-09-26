@@ -99,6 +99,8 @@ typedef struct control {
 /**
  * @struct input_st
  * @brief Thread-safe variant for input variables with availability checks. Currently not needed
+ * @var value                   Input value
+ * @var available               Is the input available
  */
 typedef struct input {
     double value;

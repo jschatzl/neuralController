@@ -31,4 +31,5 @@ class I:
         self.yn = 0.0
 
     def step(self, u: float) -> float:
-        return self.yn + (self.K * u * self.T)
+        self.yn += self.K * u * self.T
+        return self.yn

@@ -16,8 +16,20 @@ target_sources(neuralController PRIVATE
 target_include_directories(neuralController PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "([xX]86|AMD64|amd64)")
+if(TEST)
+    # add target test
+    add_executable(test)
+    target_sources(test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+    )
+    target_include_directories(test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    )
+    target_link_libraries(test PRIVATE 
+        neuralController 
+        m
+    )
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "([xX]86|AMD64|amd64)")
     # create target library for python
     add_library(neuralControllerInterface SHARED)
     target_sources(neuralControllerInterface PRIVATE
@@ -32,19 +44,6 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "([xX]86|AMD64|amd64)")
     set_target_properties(neuralControllerInterface PROPERTIES PREFIX "")
 endif()
 
-if(DEFINED TEST)
-    # add target test
-    add_executable(test)
-    target_sources(test PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
-    )
-    target_include_directories(test PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/inc
-    )
-    target_link_libraries(test PRIVATE 
-        neuralController 
-        m
-    )
-endif()
+
 
 
