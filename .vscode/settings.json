@@ -1,6 +1,6 @@
 {
-    "C_Cpp.errorSquiggles": "disabled",
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.errorSquiggles": "enabled",
+    // "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cmake.configureOnOpen": true,
     "cmake.useCMakePresets": "always",
     "cmake.debugConfig": {
@@ -14,15 +14,5 @@
             "1.0",
             "1"
         ]
-    },
-    "files.associations": {
-        "nchelper.h": "c",
-        "supportlib.h": "c",
-        "type_traits": "c",
-        "xtr1common": "c",
-        "neuralcontroller.h": "c",
-        "initializer_list": "c",
-        "xstring": "c",
-        "xutility": "c"
     }
 }

@@ -2,14 +2,75 @@
  * @file neural_controller.c
  * @author Jakob Schatzl
  * @brief Implementation of library functions for the neural controller
- * @version 0.1
+ * @version 0.2
  * @date 2023-01-13
  *
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2026
  *
  */
+/**************************************************************************************************
+                                    Section for headers
+***************************************************************************************************/
 #include "neuralController.h"
 
+/**************************************************************************************************
+                            Section for private function prototypes
+***************************************************************************************************/
+/**
+ * @brief Calculates the whole network
+ * @details Function to calculate all neurons in all layers, first the z with bias and then the activation function
+ * @param ncConfig The neuralControllerConfig_st structure used for iteration in the for loops
+ * @param control The structure for the input and input_old arrays
+ * @param weight Pointer to a 3-dimensional weights array
+ * @param neuron Pointer to a 2-dimensional neuron_st array
+ */
+void forwardPass(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron);
+
+/**
+ * @brief Calculates the sigma values needed for \ref updateWeightsAndBiases() 
+ * @details Calulcates the sigma values starting from the output through the hidden layers to the input layers. Afterwards,
+ *          \ref updateWeightsAndBiases() shall be called to update the weights and biases with the newly calulcated sigma values.
+ * @param ncConfig The neuralControllerConfig_st structure used for iteration in the for loops
+ * @param control The structure for the input and input_old arrays
+ * @param weight Pointer to a 3-dimensional weights array
+ * @param neuron Pointer to a 2-dimensional neuron_st array
+ */
+void computeSigmas(neuralControllerConfig_st* ncConfig, control_st *control, double* pInput, double ***weight, neuron_st **neuron);
+
+/**
+ * @brief Updates the weights and biases
+ * @details Updates the weights and biases on the basis of the calculated sigmas in \ref computeSigmas().
+ * @param ncConfig The neuralControllerConfig_st structure used for iteration in the for loops
+ * @param control The structure for the input and input_old arrays
+ * @param weight Pointer to a 3-dimensional weights array
+ * @param neuron Pointer to a 2-dimensional neuron_st array
+ */
+void updateWeightsAndBiases(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron);
+
+/**
+ * @brief C function for the hyberbolic tangent
+ * @param x x value for the dervative of the hyberbolic tangent
+ * @return y value for the dervative of the hyberbolic tangent
+ */
+double dTanh(double x);
+
+/**
+ * @brief Sigmoid function
+ * @param x x value
+ * @return y value
+ */
+double sigmoid(double x);
+
+/**
+ * @brief Derivative of the sigmoid function
+ * @param x x value
+ * @return y value
+ */
+double dSigmoid(double x);
+
+/**************************************************************************************************
+                                Section for public functions
+***************************************************************************************************/
 int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *control, float (*fctPtr)(), double**** pWeight, neuron_st*** pNeuron) {
     control->act_new = 0;
     control->act_old = ncConfig->setpoint - 0;
@@ -19,8 +80,6 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
     control->input = (double*)calloc(ncConfig->inputs, sizeof(double));
     control->input_old = (double*)calloc(ncConfig->inputs, sizeof(double));
     control->rating = 0;
-
-
 
     // double *error_array = calloc(ncConfig->max_epochs, sizeof(double));
     ncConfig->arch.total_neurons = ncConfig->neurons * ncConfig->hidden_layers + ncConfig->output_layer_neurons;
@@ -65,7 +124,7 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
     }
     ncConfig->initialized = 1;
 
-#else /*LOAD_weight*/
+#else /*!LOAD_weight*/
 
     /*Initialize weight and bias with random values between 0 and 1 and
       initialize the rest with 0*/
@@ -97,37 +156,70 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
     
 #endif /*LOAD_weight*/
 
-    return 42;
+    return 0;
 }
 
 int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *control, double* pOutput, double* pInput, double*** weight, neuron_st** neuron) {
-    int n = 0;
-    int w = 0;
-
     control->input[0] = ncConfig->setpoint - pInput[0];
     control->input[1] = pInput[0];
 
-    /* Loop back output as input for Jordan network type */
+    /* Loop back output as input for Jordan type network */
     if(ncConfig->isJordan){
         control->input[2] = *pOutput;
     }
+    forwardPass(ncConfig, control, weight, neuron);
+    computeSigmas(ncConfig, control, pInput, weight, neuron);
+    updateWeightsAndBiases(ncConfig, control, weight, neuron);
 
-    // for(int i = 0; i < 3; i++){
-    //     printf("%f \n", control->input[i]);
-    // }
+    control->epoch++;
 
-    /*Forward pass*/
+    *pOutput = neuron[ncConfig->hidden_layers][0].netoutput;
+#if LOG_ENABLE
+    if((control->epoch % 1000) == 0){
+         printf("Setpoint: %f, Learning rate: %f, Plant output: %f, u: %f,  Error: %f \n", ncConfig->setpoint, ncConfig->learning_rate, pInput[1], *pOutput, ncConfig->setpoint - pInput[0]);
+    }
+#endif
+    return 0;
+}
+
+void neuralController_Free(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron) {
+    if((!weight) || (!neuron) || (!ncConfig))
+        return;
+
+    for(int layer = 0; layer < ncConfig->layers - 1; layer++){
+        for(int j = 0; j < ncConfig->arch.topology[layer]; j++){
+            free(weight[layer][j]);
+        }
+        free(weight[layer]);
+    }
+    
+    for(int layer = 0; layer < ncConfig->layers - 1; layer++){
+        free(neuron[layer]);
+    }
+
+    free(control->input);
+    free(control->input_old);
+    free(ncConfig->arch.topology);
+    free(weight);
+    free(neuron);
+}
+
+/**************************************************************************************************
+                                Section for private functions
+***************************************************************************************************/
+
+void forwardPass(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron){
+    int n = 0; /* Sanity check variable to count neurons during forward pass */
+
+    /* Feed forward network */
     for (int layer = 0; layer < ncConfig->layers - 1; layer++) {
         for (int j = 0; j < ncConfig->arch.topology[layer + 1]; j++) {
-            /*First hidden layer*/
             double sum = neuron[layer][j].bias;
-            //double sum = 0;
             for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
                 if (layer == 0)
                     sum += control->input[k] * weight[layer][k][j];
                 else
                     sum += neuron[layer - 1][k].netoutput * weight[layer][k][j];
-                //printf("Sum: %f W: %f ", sum, weight[layer][k][j]);
             }
             neuron[layer][j].netinput = sum;
             if (layer == ncConfig->hidden_layers)
@@ -135,11 +227,14 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
             else
                 neuron[layer][j].netoutput = tanh(sum);
             n++;
-            //printf("Sum: %f N: %f \n", neuron[layer][j].netinput, neuron[layer][j].netoutput);
         }
     }
+    /* Sanity check to see if all neuron values have been calculated */
     assert(n == ncConfig->arch.total_neurons);
-    n = 0;
+}
+
+void computeSigmas(neuralControllerConfig_st* ncConfig, control_st *control, double* pInput, double ***weight, neuron_st **neuron){
+    int n = 0; /* Sanity check variable to count neurons during sigma calculation */
 
     /*Backpropagation*/
     /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
@@ -148,7 +243,7 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
      * current layer  = j = layer
      * previous layer = i = layer - 1
      */
-    /*Start at output layer*/
+    /* Start sigma calculation at output layer */
     for (int layer = ncConfig->hidden_layers; layer >= 0; layer--) {
         for (int neuronC = 0; neuronC < ncConfig->arch.topology[layer + 1]; neuronC++) {
             /*Output layer uses the rating to determine the error signal,
@@ -170,8 +265,21 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
             }
         }
     }
+    /* Sanity check to see if all sigma values of all neurons have been calculated */
     assert(n == ncConfig->arch.total_neurons);
-    n = 0;
+}
+
+void updateWeightsAndBiases(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron){
+    int n = 0; /* Sanity check variable to count neurons during update step */
+    int w = 0; /* Sanity check variable to count weights during update step */
+
+    /*Backpropagation*/
+    /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
+    /**
+     * next layer     = k = layer + 1
+     * current layer  = j = layer
+     * previous layer = i = layer - 1
+     */
     for (int layer = ncConfig->hidden_layers; layer >= 0; layer--) {
         for (int neuronC = 0; neuronC < ncConfig->arch.topology[layer + 1]; neuronC++) {
             /*Output layer uses the rating to determine the error signal,
@@ -199,37 +307,6 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
     }
     assert(w == ncConfig->arch.total_weights);
     assert(n == ncConfig->arch.total_neurons);
-    w = 0;
-    n = 0;
-    control->epoch++;
-
-    *pOutput = neuron[ncConfig->hidden_layers][0].netoutput;
-    // if((control->epoch % 1000) == 0){
-    //     printf("Setpoint: %f, Learning rate: %f, Plant output: %f, u: %f,  Error: %f \n", ncConfig->setpoint, ncConfig->learning_rate, pInput[1], *pOutput, ncConfig->setpoint - pInput[0]);
-    // }
-    return 3;
-}
-
-void neuralController_Free(neuralControllerConfig_st* ncConfig, control_st *control, double ***weight, neuron_st **neuron) {
-    if((!weight) || (!neuron) || (!ncConfig))
-        return;
-
-    for(int layer = 0; layer < ncConfig->layers - 1; layer++){
-        for(int j = 0; j < ncConfig->arch.topology[layer]; j++){
-            free(weight[layer][j]);
-        }
-        free(weight[layer]);
-    }
-    
-    for(int layer = 0; layer < ncConfig->layers - 1; layer++){
-        free(neuron[layer]);
-    }
-
-    free(control->input);
-    free(control->input_old);
-    free(ncConfig->arch.topology);
-    free(weight);
-    free(neuron);
 }
 
 void saveArrayToFile(const char *filename) {
@@ -238,9 +315,6 @@ void saveArrayToFile(const char *filename) {
         perror("Error opening model file");
         exit(EXIT_FAILURE);
     }
-
-    // Write the entire 3D array to the file
-    //fwrite(weight, sizeof(double), total_weight, file);
 
     fclose(file);
 }

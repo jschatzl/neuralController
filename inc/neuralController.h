@@ -2,10 +2,10 @@
  * @file neural_controller.h
  * @author Jakob Schatzl
  * @brief
- * @version 0.1
+ * @version 0.2
  * @date 2023-01-13
  *
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2026
  *
  */
 #ifndef neuralController
@@ -129,7 +129,7 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
  * @param ncConfig Reference pointer to a neuralControllerConfi_st structure
  * @param control Reference pointer to a control_st structure
  * @param pOutput Reference pointer to the output
- * @param pInput Reference pointer to array of inputs outside of what is calculated in the function
+ * @param pInput Reference pointer to array of inputs of the plant
  * @param weight Pointer to a 3-dimensional weights array
  * @param neuron Pointer to a 2-dimensional neuron_st array
  * @return 0 on success
@@ -150,26 +150,5 @@ void neuralController_Free(neuralControllerConfig_st* ncConfig, control_st *cont
  * @brief Currently unused. Please don't use
  */
 void saveArrayToFile(const char *filename);
-
-/**
- * @brief C function for the hyberbolic tangent
- * @param x x value for the dervative of the hyberbolic tangent
- * @return y value for the dervative of the hyberbolic tangent
- */
-double dTanh(double x);
-
-/**
- * @brief Sigmoid function
- * @param x x value
- * @return y value
- */
-double sigmoid(double x);
-
-/**
- * @brief Derivative of the sigmoid function
- * @param x x value
- * @return y value
- */
-double dSigmoid(double x);
 
 #endif  /* neuralController */
