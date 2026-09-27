@@ -72,6 +72,15 @@ double dSigmoid(double x);
                                 Section for public functions
 ***************************************************************************************************/
 int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *control, float (*fctPtr)(), double**** pWeight, neuron_st*** pNeuron) {
+    /** Null pointer check */
+    if((!ncConfig) || (!control) || (!fctPtr) || (!pWeight) || (!pNeuron)){
+        return -1;
+    }
+    /** neuralControllerConfig_st values check */
+    if((ncConfig->inputs == 0) || (ncConfig->hidden_layers == 0) || (ncConfig->layers == 0) || (ncConfig->neurons == 0) || (ncConfig->output_layer_neurons == 0)){
+        return -1;
+    }
+
     control->act_new = 0;
     control->act_old = ncConfig->setpoint - 0;
     if(ncConfig->isJordan){
@@ -81,7 +90,6 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
     control->input_old = (double*)calloc(ncConfig->inputs, sizeof(double));
     control->rating = 0;
 
-    // double *error_array = calloc(ncConfig->max_epochs, sizeof(double));
     ncConfig->arch.total_neurons = ncConfig->neurons * ncConfig->hidden_layers + ncConfig->output_layer_neurons;
     ncConfig->arch.total_weights = (ncConfig->inputs * ncConfig->neurons) + (ncConfig->neurons * ncConfig->neurons * (ncConfig->hidden_layers - 1)) + (ncConfig->neurons * ncConfig->output_layer_neurons);
 
@@ -160,6 +168,10 @@ int neuralController_Init(neuralControllerConfig_st* ncConfig, control_st *contr
 }
 
 int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *control, double* pOutput, double* pInput, double*** weight, neuron_st** neuron) {
+    /** Null pointer check */
+    if((!ncConfig) || (!control) || (!pOutput) || (!pInput) || (!weight) || (!neuron)){
+        return -1;
+    }
     control->input[0] = ncConfig->setpoint - pInput[0];
     control->input[1] = pInput[0];
 
@@ -248,10 +260,9 @@ void computeSigmas(neuralControllerConfig_st* ncConfig, control_st *control, dou
         for (int neuronC = 0; neuronC < ncConfig->arch.topology[layer + 1]; neuronC++) {
             /*Output layer uses the rating to determine the error signal,
             therefore the program branches here
-             */
+                */
             if (layer == ncConfig->hidden_layers) {
                 double sigma = (ncConfig->setpoint - pInput[0]) * dTanh(neuron[layer][neuronC].netinput);
-                // double sigma = control->rating * dTanh(neuron[layer][neuronC].netinput);
                 neuron[layer][neuronC].sigma = sigma;
                 n++;
             } else {
@@ -284,7 +295,7 @@ void updateWeightsAndBiases(neuralControllerConfig_st* ncConfig, control_st *con
         for (int neuronC = 0; neuronC < ncConfig->arch.topology[layer + 1]; neuronC++) {
             /*Output layer uses the rating to determine the error signal,
             therefore the program branches here
-             */
+                */
             if (layer == ncConfig->hidden_layers) {
                 for (int k = 0; k < ncConfig->arch.topology[layer]; k++) {
                     weight[layer][k][neuronC] += ncConfig->learning_rate * neuron[layer][neuronC].sigma * neuron[layer - 1][k].netoutput;

@@ -1,0 +1,35 @@
+\begin{tikzpicture}[
+    >=Stealth,
+    line width=0.65pt,
+    every node/.style={font=\small},
+    terminator/.style={ellipse,draw,minimum width=2.7cm,minimum height=0.9cm,align=center},
+    process/.style={rounded rectangle,draw,minimum width=4.2cm,minimum height=0.9cm,align=center},
+    decision/.style={diamond,draw,aspect=2,minimum width=2.8cm,minimum height=1.1cm,align=center,inner sep=1pt},
+    arrow/.style={->}
+]
+
+\node[terminator] (start) at (-1.13,11.45) {Start};
+\node[process,below=1.01cm of start] (grad) {Calculate weight and bias changes\\using saved $\sigma$ values};
+\node[decision,below=0.64cm of grad] (first) {First hidden layer?};
+\node[process,below left=0.9cm and 2.5cm of first] (networkinput)
+    {Use network input for\\incoming weight changes};
+\node[process,below right=0.9cm and 2.5cm of first] (previousoutput)
+    {Use previous-layer outputs for\\incoming weight changes};
+\coordinate (merge) at ($(networkinput.south)!0.5!(previousoutput.south)+(0,-0.65cm)$);
+\node[process,below=0.45cm of merge] (update) at (-1.13,3.95) {Update weights and biases};
+\node[decision,below=0.8cm of update] (input) {All trainable layers done?};
+\node[process,right=4.33cm of input] (previous) {Previous layer};
+\node[terminator,below=0.85cm of input] (end) {End};
+
+\draw[arrow] (start) -- (grad.north);
+\draw[arrow] (grad) -- (first);
+\draw[arrow] (first.west) -| node[above,pos=0.25] {true} (networkinput.north);
+\draw[arrow] (first.east) -| node[above,pos=0.25] {false} (previousoutput.north);
+\draw[arrow] (networkinput.south) |- (update.west);
+\draw[arrow] (previousoutput.south) |- (update.east);
+\draw[arrow] (update) -- (input);
+\draw[arrow] (input) -- node[left] {true} (end);
+\draw[arrow] (input.east) -- node[above] {false} (previous.west);
+\draw[arrow] (previous.north) |- (grad.east);
+
+\end{tikzpicture}

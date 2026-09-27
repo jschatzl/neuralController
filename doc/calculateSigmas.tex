@@ -1,0 +1,35 @@
+\begin{tikzpicture}[
+    >=Stealth,
+    line width=0.65pt,
+    every node/.style={font=\small},
+    terminator/.style={ellipse,draw,minimum width=2.7cm,minimum height=0.9cm,align=center},
+    process/.style={rounded rectangle,draw,minimum width=3.8cm,minimum height=0.9cm,align=center},
+    decision/.style={diamond,draw,aspect=2,minimum width=2.7cm,minimum height=1.1cm,align=center,inner sep=1pt},
+    arrow/.style={->}
+]
+
+\node[terminator] (start) at (-0.01,0.54) {Start};
+\node[process,below=0.8cm of start] (error) {Calculate error signal};
+\node[decision,below=0.8cm of error] (output) {Output layer?};
+\node[process,below left=0.9cm and 2.5cm of output] (outdelta)
+    {Calculate output-layer\\$\sigma$ using tracking error};
+\node[process,below right=0.9cm and 2.5cm of output] (hiddendelta)
+    {Calculate hidden-layer\\$\sigma$ using next-layer $\sigma$};
+\coordinate (merge) at ($(outdelta.south)!0.5!(hiddendelta.south)+(0,-0.65cm)$);
+\node[process,below=0.45cm of merge] (save) at (0,-6.49) {Save layer $\sigma$ values};
+\node[decision,below=0.8cm of save] (first) {First hidden layer?};
+\node[process,right=4.5cm of first] (previous) {Previous layer};
+\node[terminator,below=0.85cm of first] (end) {End};
+
+\draw[arrow] (start) -- (error);
+\draw[arrow] (error) -- (output);
+\draw[arrow] (output.west) -| node[above,pos=0.25] {true} (outdelta.north);
+\draw[arrow] (output.east) -| node[above,pos=0.25] {false} (hiddendelta.north);
+\draw[arrow] (outdelta.south) |- (save.west);
+\draw[arrow] (hiddendelta.south) |- (save.east);
+\draw[arrow] (save) -- (first);
+\draw[arrow] (first) -- node[left] {true} (end);
+\draw[arrow] (first.east) -- node[above] {false} (previous.west);
+\draw[arrow] (previous.north) |- (error.east);
+
+\end{tikzpicture}
