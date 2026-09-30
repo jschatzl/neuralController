@@ -35,7 +35,7 @@ void forwardPass(neuralControllerConfig_st* ncConfig, control_st *control, doubl
  * @param weight Pointer to a 3-dimensional weights array
  * @param neuron Pointer to a 2-dimensional neuron_st array
  */
-void computeSigmas(neuralControllerConfig_st* ncConfig, control_st *control, double* pInput, double ***weight, neuron_st **neuron);
+void computeSigmas(neuralControllerConfig_st* ncConfig, double* pInput, double ***weight, neuron_st **neuron);
 
 /**
  * @brief Updates the weights and biases
@@ -180,7 +180,7 @@ int neuralController_Run(neuralControllerConfig_st* ncConfig, control_st *contro
         control->input[2] = *pOutput;
     }
     forwardPass(ncConfig, control, weight, neuron);
-    computeSigmas(ncConfig, control, pInput, weight, neuron);
+    computeSigmas(ncConfig, pInput, weight, neuron);
     updateWeightsAndBiases(ncConfig, control, weight, neuron);
 
     control->epoch++;
@@ -245,12 +245,11 @@ void forwardPass(neuralControllerConfig_st* ncConfig, control_st *control, doubl
     assert(n == ncConfig->arch.total_neurons);
 }
 
-void computeSigmas(neuralControllerConfig_st* ncConfig, control_st *control, double* pInput, double ***weight, neuron_st **neuron){
+void computeSigmas(neuralControllerConfig_st* ncConfig, double* pInput, double ***weight, neuron_st **neuron){
     int n = 0; /* Sanity check variable to count neurons during sigma calculation */
 
     /*Backpropagation*/
     /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
-    /**
      * next layer     = k = layer + 1
      * current layer  = j = layer
      * previous layer = i = layer - 1
@@ -286,7 +285,6 @@ void updateWeightsAndBiases(neuralControllerConfig_st* ncConfig, control_st *con
 
     /*Backpropagation*/
     /*For detailed explaination see https://en.wikipedia.org/wiki/Backpropagation
-    /**
      * next layer     = k = layer + 1
      * current layer  = j = layer
      * previous layer = i = layer - 1
