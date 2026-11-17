@@ -1,3 +1,13 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
+/**
+ * @file pid.h
+ * @author Jakob Schatzl
+ * @brief Public header for the PID controller implementation
+ * @version 1.0
+ * @date 2026-11-17
+ */
 #ifndef PID_H
 #define PID_H
 

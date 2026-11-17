@@ -1,3 +1,13 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
+/**
+ * @file pt2.h
+ * @author Jakob Schatzl
+ * @brief Public header for the PT2 controller implementation
+ * @version 1.0
+ * @date 2026-11-17
+ */
 #ifndef PT2_H
 #define PT2_H
 

@@ -1,9 +1,22 @@
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
+
+# @file neuralControllerClass.py
+# @author Jakob Schatzl
+# @brief Python interface for the neural controller
+# @version 1.0
+# @date 2026-11-17
+
 import ctypes
 import random
 import math
+import sys
 from enum import IntEnum
+from pathlib import Path
 
-lib = ctypes.CDLL("./scripts/neuralControllerInterface.so") 
+_LIB_EXT = ".dll" if sys.platform == "win32" else ".so"
+_LIB_PATH = Path(__file__).resolve().parents[2] / "build" / "shared" / f"neuralControllerInterface{_LIB_EXT}"
+lib = ctypes.CDLL(str(_LIB_PATH))
 
 activation_st = ctypes.c_void_p
 

@@ -1,11 +1,12 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
 /**
- * @file neural_controller.h
+ * @file activation.h
  * @author Jakob Schatzl
- * @brief Public header for the activation function implementatitions
- * @version 0.1
- * @date 2026-10-05
- *
- * @copyright Copyright (c) 2026
+ * @brief Public header for the activation function implementations
+ * @version 1.0
+ * @date 2026-11-17
  */
 #ifndef ACTIVATION_H
 #define ACTIVATION_H

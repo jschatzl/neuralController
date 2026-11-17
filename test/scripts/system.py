@@ -1,3 +1,12 @@
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
+
+# @file system.py
+# @author Jakob Schatzl
+# @brief PT1, PT2, and I system simulations
+# @version 1.0
+# @date 2026-11-17
+
 class PT1:
     def __init__(self, K: float, T: float, dt: float):
         self.K = K

@@ -1,4 +1,11 @@
-import math
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
+
+# @file pt2_rk4.py
+# @author Jakob Schatzl
+# @brief PT2 system simulation using the Runge-Kutta 4th order method
+# @version 1.0
+# @date 2026-11-17
 
 class PT2:
     def __init__(self, K: float, T: float, D: float, dt: float):

@@ -1,9 +1,17 @@
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
+
+# @file metrics.py
+# @author Jakob Schatzl
+# @brief Metrics calculation for neural controller experiments
+# @version 1.0
+# @date 2026-11-17
+
 import numpy as np
 import pandas as pd
 import learnrate as lr
 from matplotlib import colormaps
 from neuralControllerClass import NeuralController
-#from system import I, PT2
 from pt2_rk4 import PT2
 
 def calculate_metrics(

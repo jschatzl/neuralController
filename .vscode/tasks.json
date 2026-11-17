@@ -29,6 +29,27 @@
             "command": "test",
             "problemMatcher": [],
             "detail": "CMake template test task"
+        },
+        {
+            "type": "shell",
+            "label": "Build shared library if missing",
+            "detail": "Configures and builds the 'shared' CMake preset if the Python interface library does not exist yet.",
+            "command": "[ -f build/shared/neuralControllerInterface.so ] || { cmake --preset shared && cmake --build --preset shared; }",
+            "windows": {
+                "command": "if (-not (Test-Path 'build/shared/neuralControllerInterface.dll')) { cmake --preset shared; if ($LASTEXITCODE -eq 0) { cmake --build --preset shared }; exit $LASTEXITCODE }",
+                "options": {
+                    "shell": {
+                        "executable": "powershell.exe",
+                        "args": ["-NoProfile", "-Command"]
+                    }
+                }
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ],
     "version": "2.0.0"

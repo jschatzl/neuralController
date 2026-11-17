@@ -1,6 +1,11 @@
-from math import floor
-from typing import Optional
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
 
+# @file learnrate.py
+# @author Jakob Schatzl
+# @brief Learning rate schedules for training
+# @version 1.0
+# @date 2026-11-17
 
 def clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(value, maximum))

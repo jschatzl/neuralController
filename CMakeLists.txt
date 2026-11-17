@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.22)
 
 project(Neural_Network)
 
-# generated library goes into the scripts folder
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/scripts")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
@@ -13,21 +11,23 @@ add_library(neuralController STATIC)
 target_sources(neuralController PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/neuralController.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/activation.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/pt2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/src/pt2.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/src/pid.c
 )
 target_include_directories(neuralController PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/inc
 )
 if(TEST)
     # add target test
     add_executable(test)
     target_sources(test PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/pt2.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/src/pt2.c
     )
     target_include_directories(test PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/inc
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/inc
     )
     target_link_libraries(test PRIVATE 
         neuralController 

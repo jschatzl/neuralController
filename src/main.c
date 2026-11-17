@@ -1,12 +1,12 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * @file main.c
  * @author Jakob Schatzl
- * @brief
- * @version 0.1
- * @date 2023-01-13
- *
- * @copyright Copyright (c) 2023
- *
+ * @brief Selft-test of the neural controller 
+ * @version 1.0
+ * @date 2026-11-17
  */
 #include "main.h"
 #include "activation.h"

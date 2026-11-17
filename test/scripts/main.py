@@ -1,7 +1,14 @@
+# SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+# SPDX-License-Identifier: Apache-2.0
+
+# @file main.py
+# @author Jakob Schatzl
+# @brief Main script for running experiments with the neural controller
+# @version 1.0
+# @date 2026-11-17
+
 import gc
-from neuralControllerClass import NeuralController
 import matplotlib.pyplot as plt
-from matplotlib import colormaps
 import plot
 import metrics
 

@@ -1,12 +1,12 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * @file neural_controller.c
  * @author Jakob Schatzl
  * @brief Implementation of library functions for the neural controller
- * @version 0.2
- * @date 2023-01-13
- *
- * @copyright Copyright (c) 2026
- *
+ * @version 1.0
+ * @date 2026-11-17
  */
 /**************************************************************************************************
                                     Section for headers

@@ -33,19 +33,20 @@
             ]
         },
         {
-            "name": "Python: Current File",
+            "name": "Python: Test Neural Controller",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/scripts/main.py",
+            "program": "${workspaceFolder}/test/scripts/main.py",
             "console": "integratedTerminal",
-            "stopOnEntry": true
+            "stopOnEntry": true,
+            "preLaunchTask": "Build shared library if missing"
         },
         {
             "name": "Python C++ Debugger",
             "type": "pythoncpp",
             "request": "launch",
             "pythonConfig": "custom",
-            "pythonLaunchName": "Python: Current File",
+            "pythonLaunchName": "Python: Test Neural Controller",
             "cppConfig": "default (gdb) Attach"
         }
     ]

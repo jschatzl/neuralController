@@ -1,12 +1,12 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * @file activation.c
  * @author Jakob Schatzl
  * @brief Implementation of activation functions for the neural controller
- * @version 0.1
+ * @version 1.0
  * @date 2026-10-05
- *
- * @copyright Copyright (c) 2026
- *
  */
 /**************************************************************************************************
                                     Section for headers

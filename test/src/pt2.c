@@ -1,3 +1,13 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
+/**
+ * @file pt2.c
+ * @author Jakob Schatzl
+ * @brief Implementation of the PT2 controller
+ * @version 1.0
+ * @date 2026-11-17
+ */
 #include "pt2.h"
 
 typedef struct {

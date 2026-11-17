@@ -1,15 +1,15 @@
+// SPDX-FileCopyrightText: 2023-2026 Jakob Schatzl
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * @file neural_controller.h
  * @author Jakob Schatzl
- * @brief
- * @version 0.2
- * @date 2023-01-13
- *
- * @copyright Copyright (c) 2026
- *
+ * @brief Public header for the neural controller implementation
+ * @version 1.0
+ * @date 2026-11-17
  */
-#ifndef neuralController
-#define neuralController
+#ifndef NEURAL_CONTROLLER_H
+#define NEURAL_CONTROLLER_H
 
 #include <assert.h>
 #include <math.h>
@@ -178,4 +178,4 @@ void saveArrayToFile(const char *filename);
  */
 float stepDecayLr(int epoch, float initialLr, int stepSize, float gamma);
 
-#endif  /* neuralController */
+#endif  /* NEURAL_CONTROLLER_H */
